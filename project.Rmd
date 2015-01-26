@@ -1,0 +1,202 @@
+# Practical Machine Learning Course Project
+
+
+
+## Introduction
+The aim of this project is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict the manner in which they did the exercise. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available[here](http://groupware.les.inf.puc-rio.br/har).
+ 
+ 
+ 
+## Data
+The training and test data sets are available through the links below :
+[Training Data](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv)
+[Test Data](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv)
+
+
+ 
+## Libraries
+```{r eval=FALSE}
+library(caret)
+library(gbm)
+library(randomForest)
+````
+ 
+ 
+ 
+## Loading and Cleaning Data
+We start by loading the training and test data. On loading, some unknown values are transformed to NA values using the `na.strings` function.
+
+```{r eval=FALSE}
+#Load Data and convert some values to NA
+training <- read.csv("pml-training.csv", na.strings=c("NA","#DIV/0!",""))
+testing <- read.csv("pml-testing.csv", na.strings=c("NA","#DIV/0!",""))
+````
+
+Afterwards, we eliminate all columns containing NA values as they constitute a majority of the values in those columns as we can see from the `summary(training)` function. Columns containing irrelevant information are also stripped off. Same applies for columns containing similar values using the `nearZeroVar` function. In our case, there was no column containing values exhibiting this property.
+
+
+```{r eval=FALSE}
+set.seed(12479)
+#Remove columns containing NA values since the majority of values in these columns are NA values
+training <- training[ , sapply(training, function(x) !any(is.na(x)))]
+testing <- testing[ , sapply(testing, function(x) !any(is.na(x)))]
+
+#Remove columns containing information irrelevant to the prediction model
+training <- training[ , -c(1 : 7)]
+testing <- testing[ , -c(1 : 7)]
+
+nzv <- nearZeroVar(training[, -ncol(training)])
+if(length(nzv) > 0) training <- training[, -nzv]
+
+nzv <- nearZeroVar(testing)
+if(length(nzv) > 0) testing <- testing[, -nzv]
+````
+ 
+ 
+ 
+ 
+## Building and Training Models
+
+* **Grading Boosting Machine**
+
+5-fold Cross validation resampling was applied in this case:
+
+```{r eval=FALSE}
+modelGBM <- train(classe ~ ., method = "gbm", data = training, trControl = trainControl(method = "cv", number = 5), verbose = FALSE)
+
+modelGBM
+```
+
+    Stochastic Gradient Boosting 
+
+    19622 samples
+      52 predictor
+        5 classes: 'A', 'B', 'C', 'D', 'E' 
+
+    No pre-processing
+    Resampling: Cross-Validated (5 fold) 
+
+    Summary of sample sizes: 15698, 15696, 15697, 15699, 15698 
+
+    Resampling results across tuning parameters:
+
+    interaction.depth  n.trees  Accuracy  Kappa  Accuracy SD  Kappa SD
+    1                   50      0.752     0.685  0.01339      0.01737 
+    1                  100      0.822     0.774  0.00996      0.01275 
+    1                  150      0.854     0.815  0.00610      0.00777 
+    2                   50      0.858     0.820  0.00888      0.01127 
+    2                  100      0.907     0.882  0.00672      0.00849 
+    2                  150      0.932     0.914  0.00545      0.00690 
+    3                   50      0.895     0.868  0.00612      0.00776 
+    3                  100      0.942     0.927  0.00573      0.00724 
+    3                  150      0.962     0.952  0.00263      0.00332 
+
+    Tuning parameter 'shrinkage' was held constant at a value of 0.1
+    Accuracy was used to select the optimal model using  the largest value.
+    The final values used for the model were n.trees = 150, interaction.depth = 3 and shrinkage = 0.1. 
+
+
+```{r eval=FALSE}
+predictions <- predict(modelGBM, newdata=training)
+confusionMatrix(predictions,training$classe)         
+    ```
+
+    Confusion Matrix and Statistics
+
+              Reference
+    Prediction    A    B    C    D    E
+            A 5528   87    0    2    4
+            B   40 3636   84    8   20
+            C    6   73 3297   90   27
+            D    5    1   35 3101   35
+            E    1    0    6   15 3521
+
+    Overall Statistics
+                                          
+               Accuracy : 0.9725          
+                 95% CI : (0.9701, 0.9748)
+    No Information Rate : 0.2844          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.9652 
+                  
+We recorded a **97.25%** prediction accuracy.
+
+
+* **Random Forest**
+
+
+```{r eval=FALSE}
+modelRF <- train(classe ~ ., method = "rf", data = training, trControl = trainControl(method = "cv", number = 5), verbose = FALSE)
+
+modelRF
+```
+
+    Random Forest 
+
+     19622 samples
+      52 predictor
+        5 classes: 'A', 'B', 'C', 'D', 'E' 
+
+    No pre-processing
+    Resampling: Cross-Validated (5 fold) 
+
+    Summary of sample sizes: 15698, 15698, 15696, 15697, 15699 
+
+    Resampling results across tuning parameters:
+
+      mtry  Accuracy  Kappa  Accuracy SD  Kappa SD
+      2    0.994     0.993  0.00201      0.00255 
+      27    0.995     0.993  0.00147      0.00186 
+      52    0.990     0.987  0.00326      0.00413 
+
+    Accuracy was used to select the optimal model using  the largest value.
+    The final value used for the model was mtry = 27. 
+
+```{r eval=FALSE}
+
+predictions <- predict(modelRF, newdata=training)
+confusionMatrix(predictions,training$classe)        
+    ```
+
+    Confusion Matrix and Statistics
+
+              Reference
+    Prediction    A    B    C    D    E
+            A 5580    0    0    0    0
+            B    0 3797    0    0    0
+            C    0    0 3422    0    0
+            D    0    0    0 3216    0
+            E    0    0    0    0 3607
+
+    Overall Statistics
+                                     
+               Accuracy : 1          
+                 95% CI : (0.9998, 1)
+    No Information Rate : 0.2844     
+    P-Value [Acc > NIR] : < 2.2e-16  
+                                     
+                  Kappa : 1  
+                  
+We recorded a **100%** prediction accuracy.
+
+
+### Prediction and Submission
+
+After prediction, the code provided on the course website was used to prepare files for submission.
+
+```{r eval=FALSE}
+predictions <- predict(modelRF, testing)
+predictions
+
+
+pml_write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0("problem_id_",i,".txt")
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+
+pml_write_files(predictions)
+```
