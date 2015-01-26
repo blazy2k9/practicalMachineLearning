@@ -101,7 +101,7 @@ modelGBM
 ```{r eval=FALSE}
 predictions <- predict(modelGBM, newdata=training)
 confusionMatrix(predictions,training$classe)         
-    ```
+```
 
 
     Confusion Matrix and Statistics
@@ -136,6 +136,7 @@ modelRF
 ```
 
 
+
     Random Forest 
 
      19622 samples
@@ -162,7 +163,7 @@ modelRF
 
 predictions <- predict(modelRF, newdata=training)
 confusionMatrix(predictions,training$classe)        
-    ```
+```
 
 
     Confusion Matrix and Statistics
@@ -188,7 +189,7 @@ We recorded a **100%** prediction accuracy.
 
 
 
-### Prediction and Submission
+## Prediction and Submission
 
 After prediction, the code provided on the course website was used to prepare files for submission.
 

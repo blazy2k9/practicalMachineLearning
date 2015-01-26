@@ -196,8 +196,9 @@ P-Value [Acc &gt; NIR] : &lt; 2.2e-16
               Kappa : 1  
               </code></pre>
 <p>We recorded a <strong>100%</strong> prediction accuracy.</p>
-<div id="prediction-and-submission" class="section level3">
-<h3>Prediction and Submission</h3>
+</div>
+<div id="prediction-and-submission" class="section level2">
+<h2>Prediction and Submission</h2>
 <p>After prediction, the code provided on the course website was used to prepare files for submission.</p>
 <pre class="r"><code>predictions &lt;- predict(modelRF, testing)
 predictions
@@ -212,7 +213,6 @@ pml_write_files = function(x){
 }
 
 pml_write_files(predictions)</code></pre>
-</div>
 </div>
 </div>
 
