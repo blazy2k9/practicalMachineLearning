@@ -3,14 +3,14 @@
 
 
 ## Introduction
-The aim of this project is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict the manner in which they did the exercise. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available[here](http://groupware.les.inf.puc-rio.br/har).
+The aim of this project is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict the manner in which they did the exercise. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available [here](http://groupware.les.inf.puc-rio.br/har).
  
  
  
 ## Data
-The training and test data sets are available through the links below :
-[Training Data](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv)
-[Test Data](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv)
+The training and test data sets are available through the links below : <br/><br/>
+  [Training Data](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv) <br/>
+  [Test Data](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv)
 
 
  
@@ -67,6 +67,7 @@ modelGBM <- train(classe ~ ., method = "gbm", data = training, trControl = train
 modelGBM
 ```
 
+
     Stochastic Gradient Boosting 
 
     19622 samples
@@ -96,10 +97,12 @@ modelGBM
     The final values used for the model were n.trees = 150, interaction.depth = 3 and shrinkage = 0.1. 
 
 
+
 ```{r eval=FALSE}
 predictions <- predict(modelGBM, newdata=training)
 confusionMatrix(predictions,training$classe)         
     ```
+
 
     Confusion Matrix and Statistics
 
@@ -132,6 +135,7 @@ modelRF <- train(classe ~ ., method = "rf", data = training, trControl = trainCo
 modelRF
 ```
 
+
     Random Forest 
 
      19622 samples
@@ -152,12 +156,14 @@ modelRF
 
     Accuracy was used to select the optimal model using  the largest value.
     The final value used for the model was mtry = 27. 
+    
 
 ```{r eval=FALSE}
 
 predictions <- predict(modelRF, newdata=training)
 confusionMatrix(predictions,training$classe)        
     ```
+
 
     Confusion Matrix and Statistics
 
@@ -181,9 +187,11 @@ confusionMatrix(predictions,training$classe)
 We recorded a **100%** prediction accuracy.
 
 
+
 ### Prediction and Submission
 
 After prediction, the code provided on the course website was used to prepare files for submission.
+
 
 ```{r eval=FALSE}
 predictions <- predict(modelRF, testing)
